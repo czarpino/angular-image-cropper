@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Angular Image Cropper</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            
+        </style>
+    </head>
+    <body ng-app="demo" >
+        <div ng-init="cropImage='images/lenna.png'">
+            <img src="images/lenna.png">
+            <img crop-image="cropImage" width="180" height="180" crop-image-result="croppedImage">
+            <img ng-src="{{ croppedImage() }}" alt="Crop result">
+            <button ng-click="cropImageResult=croppedImage()">Crop</button>
+        </div>
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="js/angular-image-cropper.js"></script>
+        <script>
+            (function (angular) {
+                'use strict';
+                angular.module("demo", ['cp.ng.crop-image']);
+            })(window.angular);
+        </script>
+    </body>
+</html>
