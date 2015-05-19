@@ -18,61 +18,76 @@
                 'cropImageResult': '='
             },
             link: function (scope, element, attrs) {
-                scope.$watch('cropImage', function () {
-                    scope.cropImageResult = new Cropper(scope.cropImage, element[0], scope);
+                var cropper = new Cropper(element[0]);
+                scope.cropImageResult = cropper.getCroppedImage;
+                
+                scope.$watch('cropImage', function (newImage) {
+                    cropper.setImageSrc(newImage);
                 });
             }
         };
     }
     
     /**
-     * Image cropper object definition.
+     * Canvas image cropper.
      * 
-     * @param {string} imageSource The image to be cropped
-     * @param {canvas} canvas A canvas object to be used for manipulating the image
-     * @returns {function} Returns a function that can be invoked to retrieve the cropped image
+     * @param {canvas} canvas Canvas object for manipulating
+     *                        source image
      */
-    function Cropper(imageSource, canvas) {
-        var image = new Image();
-        var ctx = canvas.getContext("2d");
-        var scale, scaleIncrement, maxScale, minScale;
-        var sensitivity = 2;
-        var canvasCursor = {x:0, y:0};
-        var mouseCursor = {x:0, y:0};
-        
-        Cropper();
-        
-        return getCroppedImage;
+    function Cropper(canvas) {
         
         /**
-         * Constructor
+         * @type CanvasRenderingContext2D
          */
-        function Cropper() {
-            image.src = imageSource;
-            image.onload = function () {
-                scale = 1.01;
-                scaleIncrement = 0.1;
-                minScale = canvas.width / image.width;
-                maxScale = image.width / canvas.width;
-                canvasCursor.x = Math.floor(image.width / 3);
-                canvasCursor.y = Math.floor(image.height / 3);
-                paint();
-            };
-            
-            canvas.addEventListener('mousedown', function (e) {
-                mouseCursor = {x:e.clientX, y:e.clientY};
-                document.addEventListener('mousemove', onMouseDragAction);
-                document.addEventListener('mouseup', function () {
-                    document.removeEventListener('mousemove', onMouseDragAction);
-                    document.removeEventListener('mouseup', this);
-                });
-            }, false);
-            
-            canvas.addEventListener('wheel', function (e) {
-                e.preventDefault();
-                zoomImage(e.deltaX <= 0 && e.deltaY <= 0);
-            }, false);
-            
+        var ctx = canvas.getContext("2d");
+        
+        /**
+         * @type Object
+         */
+        var canvasCursor = {x:0, y:0};
+        
+        /**
+         * @type Object
+         */
+        var mouseCursor = {x:0, y:0};
+        
+        /**
+         * @type Number
+         */
+        var scale = 1.0;
+        
+        /**
+         * @type Number
+         */
+        var scaleIncrement = 0.1;
+        
+        /**
+         * @type Image
+         */
+        var image;
+        
+        /**
+         * 
+         * @type Number
+         */
+        var maxScale;
+        
+        /**
+         * 
+         * @type Number
+         */
+        var minScale;
+        
+        /**
+         * @type Number
+         */
+        var motionSensitivity = 2.0;
+        
+        canvas.addEventListener('mousedown', onCanvasMouseDown, false);
+        canvas.addEventListener('wheel', onCanvasMouseScroll, false);
+        
+        // TODO mobile
+        if (false) {
             canvas.addEventListener('touchstart', function (e) {
                 mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
                 document.addEventListener('touchmove', onTouchMoveAction);
@@ -81,30 +96,143 @@
                     document.removeEventListener('touchend', this);
                 });
             });
-            
-            // TODO touch pinch listener for zoom in/out
+        }
+
+        // TODO touch pinch listener for zoom in/out
+        
+        var self = this;
+        self.getCroppedImage = getCroppedImage;
+        self.setImageSrc = setImageSrc;
+        self.paint = paint;
+        
+        return this;
+        
+        /**
+         * Retrieve base64 encoded canvas image.
+         * 
+         * @returns {string}
+         */
+        function getCroppedImage() {
+            return canvas.toDataURL();
         }
         
         /**
-         * On mouse drag logic.
+         * Set image to crop.
          * 
+         * @param {String} imageSrc
+         * @returns {Cropper}
+         */
+        function setImageSrc(imageSrc) {
+            image = new Image();
+            image.src = imageSrc;
+            image.onload = function () {
+                reset();
+                computeCropperParams();
+                paint();
+            };
+            
+            return self;
+        }
+        
+        /**
+         * Reset cropper params.
+         * 
+         * @returns {Cropper}
+         */
+        function reset() {
+            canvasCursor = {x:0, y:0};
+            mouseCursor = {x:0, y:0};
+            scale = 1.0;
+            
+            return self;
+        }
+        
+        /**
+         * Compute image dependent cropper params.
+         * 
+         * @returns {Cropper}
+         */
+        function computeCropperParams() {
+            minScale = canvas.width / image.width;
+            maxScale = image.width / canvas.width;
+            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width / 3) : image.width;
+            canvasCursor.y = canvas.width < image.width ? Math.floor(image.height / 3) : image.width;
+            
+            return self;
+        }
+        
+        /**
+         * Paint image onto canvas.
+         */
+        function paint() {
+            ctx.drawImage(image,
+                canvasCursor.x, canvasCursor.y, canvas.width * scale, canvas.height * scale,
+                0, 0, canvas.width, canvas.height
+            );
+    
+            return self;
+        }
+        
+        /**
          * @param {event} e
+         * @returns {undefined}
+         */
+        function onCanvasMouseDown(e) {
+            mouseCursor = {x:e.clientX, y:e.clientY};
+            document.addEventListener('mousemove', onMouseDragAction);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+        
+        /**
+         * @param {event} e
+         * @returns {undefined}
+         */
+        function onMouseUp(e) {
+            document.removeEventListener('mousemove', onMouseDragAction);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+        
+        /**
+         * @param {event} e
+         * @returns {undefined}
+         */
+        function onCanvasMouseScroll(e) {
+            e.preventDefault();
+            zoomImage(e.deltaX <= 0 && e.deltaY <= 0);
+        }
+        
+        /**
+         * @param {event} e
+         * @returns {undefined}
          */
         function onMouseDragAction(e) {
+            e.preventDefault();
+            
             var dx = e.clientX - mouseCursor.x;
             var dy = e.clientY - mouseCursor.y;
             
-            moveImage(dx * sensitivity, dy * sensitivity);
+            if (isInBoundary(dx, dy)) {
+                moveImage(dx, dy);
+            }
+            
             mouseCursor = {x:e.clientX, y:e.clientY};
         }
         
+        /**
+         * @param {event} e
+         * @returns {undefined}
+         */
         function onTouchMoveAction(e) {
             e.preventDefault();
+            
             if (1 === e.changedTouches.length) {
                 var dx = e.targetTouches[0].screenX - mouseCursor.x;
                 var dy = e.targetTouches[0].screenY - mouseCursor.y;
                 mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
-                moveImage(dx * sensitivity, dy * sensitivity);
+                
+                if (isInBoundary(dx, dy)) {
+                    moveImage(dx, dy);
+                }
             }
         }
         
@@ -113,17 +241,14 @@
          * 
          * @param {int} dx Change in horizontal position
          * @param {int} dy Change in vertical position
+         * @returns {Cropper}
          */
         function moveImage(dx, dy) {
-            if (isInBoundary(dx, dy)) {
-                canvasCursor.x += -dx;
-                canvasCursor.y += -dy;
-                paint();
-                
-                return true;
-            }
-            
-            return false;
+            canvasCursor.x += -dx * motionSensitivity;
+            canvasCursor.y += -dy * motionSensitivity;
+            paint();
+
+            return self;
         }
         
         /**
@@ -133,12 +258,13 @@
          *                  will zoom out otherwise
          */
         function zoomImage(zoomIn) {
-            scale += zoomIn ? -scaleIncrement : scaleIncrement;
-            if (isInBoundary(0, 0) && scale >= minScale && scale <= maxScale) {
+            var newScale = scale + (zoomIn ? -scaleIncrement : scaleIncrement);
+            if (isInBoundary(0, 0, newScale) && newScale >= minScale && newScale <= maxScale) {
+                scale = newScale;
                 paint();
-                return;
             }
-            scale -= zoomIn ? -scaleIncrement : scaleIncrement;
+            
+            return self;
         }
         
         /**
@@ -146,37 +272,23 @@
          * 
          * @param {int} dx Projected change in horizontal
          * @param {int} dy Projected change in vertical
+         * @param {float} testScale Zoom scale
          * @returns {Boolean} True when still in boundary, false otherwise
          */
-        function isInBoundary(dx, dy) {
-            var newTopX = canvasCursor.x + (-dx || 0);
-            var newTopY = canvasCursor.y + (-dy || 0);
+        function isInBoundary(dx, dy, testScale) {
+            dx = dx || 0;
+            dy = dy || 0;
+            testScale = testScale || scale;
+            
+            var newTopX = canvasCursor.x + -dx * motionSensitivity;
+            var newTopY = canvasCursor.y + -dy * motionSensitivity;
             
             var leftBorder = 0 < newTopX;
-            var rightBorder = newTopX + canvas.width * scale < image.width;
+            var rightBorder = newTopX + canvas.width * testScale < image.width;
             var topBorder = 0 < newTopY;
-            var bottomBorder = newTopY + canvas.height * scale < image.height;
+            var bottomBorder = newTopY + canvas.height * testScale < image.height;
             
             return leftBorder && rightBorder && topBorder && bottomBorder;
-        }
-        
-        /**
-         * Draw image in canvas.
-         */
-        function paint() {
-            ctx.drawImage(image,
-                canvasCursor.x, canvasCursor.y, canvas.width * scale, canvas.height * scale,
-                0, 0, canvas.width, canvas.height
-            );
-        }
-        
-        /**
-         * Retrieve base64 encoded canvas image.
-         * 
-         * @returns {string}
-         */
-        function getCroppedImage() {
-            return canvas.toDataURL();
         }
     }
 })(window.angular, window.document);
