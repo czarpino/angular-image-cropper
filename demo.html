@@ -12,8 +12,8 @@
         <div ng-init="cropImage='images/lenna.png'">
             <img src="images/lenna.png">
             <img crop-image="cropImage" width="180" height="180" crop-image-result="croppedImage">
-            <img ng-src="{{ croppedImage() }}" alt="Crop result">
-            <button ng-click="cropImageResult=croppedImage()">Crop</button>
+            <img ng-src="{{ cropImage }}" alt="Crop result">
+            <button ng-click="cropImage=croppedImage()">Crop</button>
         </div>
         <script src="bower_components/angular/angular.min.js"></script>
         <script src="js/angular-image-cropper.js"></script>
