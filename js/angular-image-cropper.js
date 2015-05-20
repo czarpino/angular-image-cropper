@@ -140,7 +140,6 @@
          * @returns {Cropper}
          */
         function reset() {
-            canvasCursor = {x:0, y:0};
             mouseCursor = {x:0, y:0};
             scale = 1.0;
             
@@ -155,8 +154,8 @@
         function computeCropperParams() {
             minScale = canvas.width / image.width;
             maxScale = image.width / canvas.width;
-            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width / 3) : image.width;
-            canvasCursor.y = canvas.width < image.width ? Math.floor(image.height / 3) : image.width;
+            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width / 3) : 0;
+            canvasCursor.y = canvas.width < image.width ? Math.floor(image.height / 3) : 0;
             
             return self;
         }
