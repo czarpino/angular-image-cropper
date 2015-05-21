@@ -4,7 +4,7 @@ Add a directive to turn an image element into an image cropping canvas! Drag aro
 
 ## Usage
 
-A demo is on the way. Regardless, here's a lazy usage reference:
+Here's a lazy usage reference:
 
     <div ng-init="cropImage='images/lenna.png'">
         <img crop-image="cropImage" crop-image-result="croppedImage">
@@ -12,7 +12,15 @@ A demo is on the way. Regardless, here's a lazy usage reference:
         <button ng-click="cropImageResult=croppedImage()">Crop</button>
     </div>
 
-**Note:** Image element annotated with `crop-image` is replaced by a canvas which inherits the original element's dimensions.
+Note that the image element annotated with `crop-image` is replaced by a canvas which inherits the original element's dimensions.
+
+A makeshift demo is available via RawGit:
+
+    https://cdn.rawgit.com/czarpino/angular-image-cropper/<<last-commit-sha>>/demo.html
+
+Replace `<<lasy-commit-sha>>` with, well, the last commit sha in the repo e.g.
+
+    https://cdn.rawgit.com/czarpino/angular-image-cropper/010dde65798d008beffadef4f8c899e8058e7806/demo.html
 
 ## Installation
 
