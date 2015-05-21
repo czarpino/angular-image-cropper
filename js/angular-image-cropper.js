@@ -37,7 +37,7 @@
     function Cropper(canvas) {
         
         canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+        canvas.height = canvas.style.height ? canvas.clientHeight : canvas.height;
         
         /**
          * @type CanvasRenderingContext2D
@@ -297,10 +297,10 @@
             var newX = canvasCursor.x + -dx * motionSensitivity;
             var newY = canvasCursor.y + -dy * motionSensitivity;
             
-            var leftBorder = -image.width * testScale < newX;
-            var rightBorder = newX < image.width;
-            var topBorder = -image.height < newY;
-            var bottomBorder = newY < image.height;
+            var rightBorder = -canvas.width * testScale <= newX;
+            var leftBorder = newX <= image.width;
+            var bottomBorder = -canvas.height * testScale <= newY;
+            var topBorder = newY <= image.height;
             
             return leftBorder && rightBorder && topBorder && bottomBorder;
         }
