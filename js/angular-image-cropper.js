@@ -59,7 +59,7 @@
         /**
          * @type Number
          */
-        var scaleIncrement = 0.1;
+        var scaleIncrement = 0.05;
         
         /**
          * @type Image
@@ -67,16 +67,18 @@
         var image;
         
         /**
+         * Zoom-out factor.
          * 
          * @type Number
          */
-        var maxScale;
+        var maxScale = 3.0;
         
         /**
+         * Zoom-in factor.
          * 
          * @type Number
          */
-        var minScale;
+        var minScale = 0.25;
         
         /**
          * @type Number
@@ -152,8 +154,6 @@
          * @returns {Cropper}
          */
         function computeCropperParams() {
-            minScale = canvas.width / image.width;
-            maxScale = image.width / canvas.width;
             canvasCursor.x = canvas.width < image.width ? Math.floor(image.width/2 - canvas.width/2) : 0;
             canvasCursor.y = canvas.height < image.height ? Math.floor(image.height/2 - canvas.height/2) : 0;
             
@@ -270,7 +270,7 @@
          */
         function zoomImage(zoomIn) {
             var newScale = scale + (zoomIn ? -scaleIncrement : scaleIncrement);
-            if (isInBoundary(0, 0, newScale) && newScale >= minScale && newScale <= maxScale) {
+            if (newScale >= minScale && newScale <= maxScale) {
                 scale = newScale;
                 repaint();
             }
@@ -291,13 +291,13 @@
             dy = dy || 0;
             testScale = testScale || scale;
             
-            var newTopX = canvasCursor.x + -dx * motionSensitivity;
-            var newTopY = canvasCursor.y + -dy * motionSensitivity;
+            var newX = canvasCursor.x + -dx * motionSensitivity;
+            var newY = canvasCursor.y + -dy * motionSensitivity;
             
-            var leftBorder = -image.width < newTopX;
-            var rightBorder = newTopX + canvas.width * testScale < 2 * image.width;
-            var topBorder = -image.height < newTopY;
-            var bottomBorder = newTopY + canvas.height * testScale < 2 * image.height;
+            var leftBorder = -image.width * testScale < newX;
+            var rightBorder = newX < image.width;
+            var topBorder = -image.height < newY;
+            var bottomBorder = newY < image.height;
             
             return leftBorder && rightBorder && topBorder && bottomBorder;
         }
