@@ -5,19 +5,45 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
+            [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+                display: none !important;
+            }
+            
             img, canvas {
                 border: solid 1px;
             }
+            
+            .image {
+                display: inline-block;
+            }
         </style>
     </head>
-    <body ng-app="demo" >
-        <div ng-init="cropImage='images/lenna.png'">
-            <img src="images/lenna.png">
-            <img crop-image="cropImage" width="180" height="180" crop-image-result="croppedImage">
-            <img ng-src="{{ cropImage }}" alt="Crop result">
-            <button ng-click="cropImage=croppedImage()">Crop</button>
+    <body ng-app="demo" ng-init="loaded = true">
+        <div ng-show="!loaded">
+            <h1>Waiting for CDN...</h1>
+            <p>Please fogive me for the horrid design you're about to see.</p>
+        </div>
+        <h1 ng-cloak ng-show="loaded">Lenna Demo</h1>
+        <div ng-cloak ng-show="loaded" ng-init="cropImage='images/lenna.png'">
+            <p>
+                <button onclick="window.location.reload()">RELOAD</button>
+                <button ng-click="cropImage=croppedImage()">CROP</button>
+            </p>
+            <div class="image">
+                <p>Original</p>
+                <img src="images/lenna.png">
+            </div>
+            <div class="image">
+                <p>Cropping</p>
+                <img crop-image="cropImage" width="180" height="180" crop-image-result="croppedImage">
+            </div>
+            <div class="image">
+                <p>Cropped</p>
+                <img ng-src="{{ cropImage }}" alt="Crop result">
+            </div>
         </div>
         <script src="bower_components/angular/angular.min.js"></script>
+        <script>window.angular || window.document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.15/angular.js">\x3C/script>');</script>
         <script src="js/angular-image-cropper.js"></script>
         <script>
             (function (angular) {
