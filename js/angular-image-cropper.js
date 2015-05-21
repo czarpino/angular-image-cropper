@@ -103,7 +103,7 @@
         var self = this;
         self.getCroppedImage = getCroppedImage;
         self.setImageSrc = setImageSrc;
-        self.paint = paint;
+        self.repaint = repaint;
         
         return this;
         
@@ -128,7 +128,7 @@
             image.onload = function () {
                 reset();
                 computeCropperParams();
-                paint();
+                repaint();
             };
             
             return self;
@@ -154,8 +154,8 @@
         function computeCropperParams() {
             minScale = canvas.width / image.width;
             maxScale = image.width / canvas.width;
-            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width / 3) : 0;
-            canvasCursor.y = canvas.width < image.width ? Math.floor(image.height / 3) : 0;
+            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width/2 - canvas.width/2) : 0;
+            canvasCursor.y = canvas.height < image.height ? Math.floor(image.height/2 - canvas.height/2) : 0;
             
             return self;
         }
@@ -169,6 +169,18 @@
                 0, 0, canvas.width, canvas.height
             );
     
+            return self;
+        }
+        
+        /**
+         * Repaint canvas.
+         * 
+         * @returns {Cropper}
+         */
+        function repaint() {
+            ctx.clearRect ( 0 , 0 , canvas.width, canvas.height );
+            paint();
+            
             return self;
         }
         
@@ -245,7 +257,7 @@
         function moveImage(dx, dy) {
             canvasCursor.x += -dx * motionSensitivity;
             canvasCursor.y += -dy * motionSensitivity;
-            paint();
+            repaint();
 
             return self;
         }
@@ -260,7 +272,7 @@
             var newScale = scale + (zoomIn ? -scaleIncrement : scaleIncrement);
             if (isInBoundary(0, 0, newScale) && newScale >= minScale && newScale <= maxScale) {
                 scale = newScale;
-                paint();
+                repaint();
             }
             
             return self;
