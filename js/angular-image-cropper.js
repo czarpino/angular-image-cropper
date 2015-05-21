@@ -294,10 +294,10 @@
             var newTopX = canvasCursor.x + -dx * motionSensitivity;
             var newTopY = canvasCursor.y + -dy * motionSensitivity;
             
-            var leftBorder = 0 < newTopX;
-            var rightBorder = newTopX + canvas.width * testScale < image.width;
-            var topBorder = 0 < newTopY;
-            var bottomBorder = newTopY + canvas.height * testScale < image.height;
+            var leftBorder = -image.width < newTopX;
+            var rightBorder = newTopX + canvas.width * testScale < 2 * image.width;
+            var topBorder = -image.height < newTopY;
+            var bottomBorder = newTopY + canvas.height * testScale < 2 * image.height;
             
             return leftBorder && rightBorder && topBorder && bottomBorder;
         }
