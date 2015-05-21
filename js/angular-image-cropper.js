@@ -45,45 +45,57 @@
         var ctx = canvas.getContext("2d");
         
         /**
+         * Point coordinates of drawing cursor.
+         * 
          * @type Object
          */
-        var canvasCursor = {x:0, y:0};
+        var paintCursor = {x:0, y:0};
         
         /**
+         * Point coordinates of mouse.
+         * 
          * @type Object
          */
         var mouseCursor = {x:0, y:0};
         
         /**
+         * Zoom factor.
+         * 
          * @type Number
          */
         var scale = 1.0;
         
         /**
+         * Zoom increment/decrement steps.
+         * 
          * @type Number
          */
         var scaleIncrement = 0.05;
         
         /**
+         * Image element.
+         * 
          * @type Image
          */
         var image;
         
         /**
-         * Zoom-out factor.
+         * Zoom-out max.
          * 
          * @type Number
          */
         var maxScale = 4.0;
         
         /**
-         * Zoom-in factor.
+         * Zoom-in max.
          * 
          * @type Number
          */
         var minScale = 0.25;
         
         /**
+         * Ratio for pointer to image movement.
+         * 
          * @type Number
          */
         var motionSensitivity = 2.0;
@@ -162,18 +174,20 @@
              * image in canvas area. Otherwise, center image inside
              * the canvas.
              */
-            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width/2 - canvas.width/2) : -Math.floor(canvas.width/2 - image.width/2);
-            canvasCursor.y = canvas.height < image.height ? Math.floor(image.height/2 - canvas.height/2) : -Math.floor(canvas.height/2 - image.height/2);
+            paintCursor.x = canvas.width < image.width ? Math.floor(image.width/2 - canvas.width/2) : -Math.floor(canvas.width/2 - image.width/2);
+            paintCursor.y = canvas.height < image.height ? Math.floor(image.height/2 - canvas.height/2) : -Math.floor(canvas.height/2 - image.height/2);
             
             return self;
         }
         
         /**
          * Paint image onto canvas.
+         * 
+         * @returns {Cropper}
          */
         function paint() {
             ctx.drawImage(image,
-                canvasCursor.x, canvasCursor.y, canvas.width * scale, canvas.height * scale,
+                paintCursor.x, paintCursor.y, canvas.width * scale, canvas.height * scale,
                 0, 0, canvas.width, canvas.height
             );
     
@@ -263,8 +277,8 @@
          * @returns {Cropper}
          */
         function moveImage(dx, dy) {
-            canvasCursor.x += -dx * motionSensitivity;
-            canvasCursor.y += -dy * motionSensitivity;
+            paintCursor.x += -dx * motionSensitivity;
+            paintCursor.y += -dy * motionSensitivity;
             repaint();
 
             return self;
@@ -275,6 +289,7 @@
          * 
          * @param {boolean} zoomIn Will zoom in when true,
          *                  will zoom out otherwise
+         * @returns {Cropper}
          */
         function zoomImage(zoomIn) {
             var newScale = scale + (zoomIn ? -scaleIncrement : scaleIncrement);
@@ -299,8 +314,8 @@
             dy = dy || 0;
             testScale = testScale || scale;
             
-            var newX = canvasCursor.x + -dx * motionSensitivity;
-            var newY = canvasCursor.y + -dy * motionSensitivity;
+            var newX = paintCursor.x + -dx * motionSensitivity;
+            var newY = paintCursor.y + -dy * motionSensitivity;
             
             var rightBorder = -canvas.width * testScale <= newX;
             var leftBorder = newX <= image.width;
