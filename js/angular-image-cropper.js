@@ -36,6 +36,9 @@
      */
     function Cropper(canvas) {
         
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        
         /**
          * @type CanvasRenderingContext2D
          */
@@ -71,7 +74,7 @@
          * 
          * @type Number
          */
-        var maxScale = 3.0;
+        var maxScale = 4.0;
         
         /**
          * Zoom-in factor.
@@ -178,7 +181,7 @@
          * @returns {Cropper}
          */
         function repaint() {
-            ctx.clearRect ( 0 , 0 , canvas.width, canvas.height );
+            ctx.clearRect (0, 0, canvas.width, canvas.height);
             paint();
             
             return self;
