@@ -37,7 +37,7 @@
     function Cropper(canvas) {
         
         canvas.width = canvas.clientWidth;
-        canvas.height = canvas.style.height ? canvas.clientHeight : canvas.height;
+        canvas.height = canvas.clientHeight;
         
         /**
          * @type CanvasRenderingContext2D
