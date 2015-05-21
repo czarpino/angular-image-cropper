@@ -14,13 +14,11 @@ Here's a lazy usage reference:
 
 Note that the image element annotated with `crop-image` is replaced by a canvas which inherits the original element's dimensions.
 
-A makeshift demo is available via RawGit:
+A makeshift demo is available via RawGit, [here](https://cdn.rawgit.com/czarpino/angular-image-cropper/010dde65798d008beffadef4f8c899e8058e7806/demo.html) or
 
     https://cdn.rawgit.com/czarpino/angular-image-cropper/<<last-commit-sha>>/demo.html
 
-Replace `<<lasy-commit-sha>>` with, well, the last commit sha in the repo e.g.
-
-    https://cdn.rawgit.com/czarpino/angular-image-cropper/010dde65798d008beffadef4f8c899e8058e7806/demo.html
+to cherry-pick a specific version.
 
 ## Installation
 
