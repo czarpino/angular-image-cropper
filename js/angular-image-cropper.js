@@ -157,8 +157,13 @@
          * @returns {Cropper}
          */
         function computeCropperParams() {
-            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width/2 - canvas.width/2) : 0;
-            canvasCursor.y = canvas.height < image.height ? Math.floor(image.height/2 - canvas.height/2) : 0;
+            
+            /* If image is larger than canvas, then show center of
+             * image in canvas area. Otherwise, center image inside
+             * the canvas.
+             */
+            canvasCursor.x = canvas.width < image.width ? Math.floor(image.width/2 - canvas.width/2) : -Math.floor(canvas.width/2 - image.width/2);
+            canvasCursor.y = canvas.height < image.height ? Math.floor(image.height/2 - canvas.height/2) : -Math.floor(canvas.height/2 - image.height/2);
             
             return self;
         }
