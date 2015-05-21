@@ -1,6 +1,6 @@
 # Angular Image Cropper
 
-Add a directive to turn image elements into croppers. Allows dragging and zooming in/out. Works with touch too -- I still need to work on the pinch, though.
+Add a directive to turn an image element into an image cropping canvas! Drag around and zoom in or out.
 
 ## Usage
 
