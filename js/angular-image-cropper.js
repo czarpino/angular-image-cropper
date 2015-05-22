@@ -100,22 +100,38 @@
          */
         var motionSensitivity = 2.0;
         
+        var touchPinch = getOnPinchAction();
+        var touchMove = getOnTouchMoveAction();
+        
         canvas.addEventListener('mousedown', onCanvasMouseDown, false);
         canvas.addEventListener('wheel', onCanvasMouseScroll, false);
         
         // TODO mobile
-        if (false) {
-            canvas.addEventListener('touchstart', function (e) {
-                mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
-                document.addEventListener('touchmove', onTouchMoveAction);
-                document.addEventListener('touchend', function (e) {
-                    document.removeEventListener('touchmove', onTouchMoveAction);
-                    document.removeEventListener('touchend', this);
+        canvas.addEventListener('touchstart', function (e) {
+            if (2 <= e.targetTouches.length) {
+                e.preventDefault();
+                canvas.removeEventListener('touchmove', touchMove);
+                canvas.addEventListener('touchmove', touchPinch);
+                canvas.addEventListener('touchend', function () {
+                    canvas.removeEventListener('touchmove', touchPinch);
                 });
-            });
-        }
-
-        // TODO touch pinch listener for zoom in/out
+            }
+            
+            if (1 === e.targetTouches.length) {
+                e.preventDefault();
+                canvas.addEventListener('touchmove', touchMove);
+                canvas.addEventListener('touchend', function () {
+                    canvas.removeEventListener('touchmove', touchMove);
+                });
+            }
+            
+//            mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
+//            document.addEventListener('touchmove', getOnTouchMoveAction());
+//            document.addEventListener('touchend', function (e) {
+//                document.removeEventListener('touchmove', getOnTouchMoveAction());
+//                document.removeEventListener('touchend', this);
+//            });
+        });
         
         var self = this;
         self.getCroppedImage = getCroppedImage;
@@ -252,20 +268,63 @@
         }
         
         /**
-         * @param {event} e
-         * @returns {undefined}
+         * Get pinch action logic.
+         * 
+         * @returns {function}
          */
-        function onTouchMoveAction(e) {
-            e.preventDefault();
+        function getOnPinchAction() {
+            var oldTouchDistance;
             
-            if (1 === e.changedTouches.length) {
-                var dx = e.targetTouches[0].screenX - mouseCursor.x;
-                var dy = e.targetTouches[0].screenY - mouseCursor.y;
-                mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
+            return onPinchAction;
+            
+            function onPinchAction(e) {
+                e.preventDefault();
                 
-                if (isInBoundary(dx, dy)) {
-                    moveImage(dx, dy);
+                if (2 <= e.changedTouches.length) {
+                    var touch1 = e.changedTouches[0];
+                    var touch2 = e.changedTouches[1];
+                    var touchDistance = Math.sqrt(Math.pow(touch1.screenX - touch2.screenX, 2) + Math.pow(touch1.screenY - touch2.screenY, 2));
+
+                    if (!oldTouchDistance) {
+                        oldTouchDistance = touchDistance;
+                        return true;
+                    }
+
+                    // reduce pinch sensitivity by 5x
+                    if (Math.abs(oldTouchDistance - touchDistance) > 5) {
+                        zoomImage(oldTouchDistance < touchDistance);
+                        oldTouchDistance = touchDistance;
+                    }
                 }
+            }
+        }
+        
+        function getOnTouchMoveAction() {
+            var touchCursor;
+            
+            return onTouchMoveAction;
+            
+            /**
+             * @param {event} e
+             * @returns {undefined}
+             */
+            function onTouchMoveAction(e) {
+               e.preventDefault();
+
+               if (1 === e.changedTouches.length) {
+                   if (!touchCursor) {
+                       touchCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
+                   }
+                   
+                   var dx = e.targetTouches[0].screenX - touchCursor.x;
+                   var dy = e.targetTouches[0].screenY - touchCursor.y;
+
+                   if (isInBoundary(dx, dy)) {
+                       moveImage(dx, dy);
+                   }
+                   
+                   touchCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
+               }
             }
         }
         
