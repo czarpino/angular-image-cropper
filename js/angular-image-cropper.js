@@ -100,38 +100,18 @@
          */
         var motionSensitivity = 2.0;
         
-        var touchPinch = getOnPinchAction();
-        var touchMove = getOnTouchMoveAction();
+        /**
+         * Distance between touch points (e.g. fingers)
+         * when listening for events on mobile.
+         * 
+         * @type Number
+         */
+        var touchDistance;
         
         canvas.addEventListener('mousedown', onCanvasMouseDown, false);
         canvas.addEventListener('wheel', onCanvasMouseScroll, false);
-        
-        // TODO mobile
-        canvas.addEventListener('touchstart', function (e) {
-            if (2 <= e.targetTouches.length) {
-                e.preventDefault();
-                canvas.removeEventListener('touchmove', touchMove);
-                canvas.addEventListener('touchmove', touchPinch);
-                canvas.addEventListener('touchend', function () {
-                    canvas.removeEventListener('touchmove', touchPinch);
-                });
-            }
-            
-            if (1 === e.targetTouches.length) {
-                e.preventDefault();
-                canvas.addEventListener('touchmove', touchMove);
-                canvas.addEventListener('touchend', function () {
-                    canvas.removeEventListener('touchmove', touchMove);
-                });
-            }
-            
-//            mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
-//            document.addEventListener('touchmove', getOnTouchMoveAction());
-//            document.addEventListener('touchend', function (e) {
-//                document.removeEventListener('touchmove', getOnTouchMoveAction());
-//                document.removeEventListener('touchend', this);
-//            });
-        });
+        canvas.addEventListener('touchstart', onTouchStart, false);
+        canvas.addEventListener('touchend', onTouchEnd, false);
         
         var self = this;
         self.getCroppedImage = getCroppedImage;
@@ -268,65 +248,76 @@
         }
         
         /**
-         * Get pinch action logic.
-         * 
-         * @returns {function}
+         * @param {event} e
+         * @returns {Boolean}
          */
-        function getOnPinchAction() {
-            var oldTouchDistance;
-            
-            return onPinchAction;
-            
-            function onPinchAction(e) {
+        function onTouchStart(e) {
+            if (2 <= e.targetTouches.length) {
                 e.preventDefault();
-                
-                if (2 <= e.changedTouches.length) {
-                    var touch1 = e.changedTouches[0];
-                    var touch2 = e.changedTouches[1];
-                    var touchDistance = Math.sqrt(Math.pow(touch1.screenX - touch2.screenX, 2) + Math.pow(touch1.screenY - touch2.screenY, 2));
+                touchDistance = Math.sqrt(
+                    Math.pow(e.targetTouches[0].screenX -  e.targetTouches[1].screenX, 2) +
+                    Math.pow(e.targetTouches[0].screenY -  e.targetTouches[1].screenY, 2)
+                );
+                canvas.addEventListener('touchmove', onPinchAction, false);
+                return false;
+            }
 
-                    if (!oldTouchDistance) {
-                        oldTouchDistance = touchDistance;
-                        return true;
-                    }
+            if (1 === e.targetTouches.length) {
+                e.preventDefault();
+                mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
+                canvas.addEventListener('touchmove', onTouchMoveAction, false);
+                return false;
+            }
+        }
+        
+        /**
+         * @param {event} e
+         * @returns {undefined}
+         */
+        function onTouchEnd(e) {
+            e.preventDefault();
+            canvas.removeEventListener('touchmove', onPinchAction);
+            canvas.removeEventListener('touchmove', onTouchMoveAction);
+        }
+        
+        /**
+         * @param {event} e
+         * @returns {undefined}
+         */
+        function onPinchAction(e) {
+            e.preventDefault();
+            if (2 <= e.changedTouches.length) {
+                var touch1 = e.changedTouches[0];
+                var touch2 = e.changedTouches[1];
+                var newTouchDistance = Math.sqrt(Math.pow(touch1.screenX - touch2.screenX, 2) + Math.pow(touch1.screenY - touch2.screenY, 2));
 
-                    // reduce pinch sensitivity by 5x
-                    if (Math.abs(oldTouchDistance - touchDistance) > 5) {
-                        zoomImage(oldTouchDistance < touchDistance);
-                        oldTouchDistance = touchDistance;
-                    }
+                // reduce pinch sensitivity by 5x because
+                // it scales too fast
+                if (Math.abs(touchDistance - newTouchDistance) > 5) {
+                    zoomImage(touchDistance < newTouchDistance);
+                    touchDistance = newTouchDistance;
                 }
             }
         }
         
-        function getOnTouchMoveAction() {
-            var touchCursor;
-            
-            return onTouchMoveAction;
-            
-            /**
-             * @param {event} e
-             * @returns {undefined}
-             */
-            function onTouchMoveAction(e) {
-               e.preventDefault();
+        /**
+         * @param {event} e
+         * @returns {undefined}
+         */
+        function onTouchMoveAction(e) {
+            e.preventDefault();
 
-               if (1 === e.changedTouches.length) {
-                   if (!touchCursor) {
-                       touchCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
-                   }
-                   
-                   var dx = e.targetTouches[0].screenX - touchCursor.x;
-                   var dy = e.targetTouches[0].screenY - touchCursor.y;
+            if (1 === e.changedTouches.length) {
+                var dx = e.targetTouches[0].screenX - mouseCursor.x;
+                var dy = e.targetTouches[0].screenY - mouseCursor.y;
 
-                   if (isInBoundary(dx, dy)) {
-                       moveImage(dx, dy);
-                   }
-                   
-                   touchCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
-               }
+                if (isInBoundary(dx, dy)) {
+                    moveImage(dx, dy);
+                }
+
+                mouseCursor = {x:e.targetTouches[0].screenX, y:e.targetTouches[0].screenY};
             }
-        }
+         }
         
         /**
          * Move image.
