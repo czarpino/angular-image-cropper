@@ -31,7 +31,7 @@
 
 <pre><code>&lt;div ng-init="cropImage='images/lenna.png'"&gt;
     &lt;img crop-image="cropImage" crop-image-result="croppedImage"&gt;
-    &lt;img ng-src="{{ croppedImage() }}"&gt;
+    &lt;img ng-src="{{ cropImageResult }}"&gt;
     &lt;button ng-click="cropImageResult=croppedImage()"&gt;Crop&lt;/button&gt;
 &lt;/div&gt;
 </code></pre>
