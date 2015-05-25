@@ -8,7 +8,7 @@ Here's a lazy usage reference:
 
     <div ng-init="cropImage='images/lenna.png'">
         <img crop-image="cropImage" crop-image-result="croppedImage">
-        <img ng-src="{{ croppedImage() }}">
+        <img ng-src="{{ cropImageResult }}">
         <button ng-click="cropImageResult=croppedImage()">Crop</button>
     </div>
 
