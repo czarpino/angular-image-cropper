@@ -14,7 +14,7 @@ Here's a lazy usage reference:
 
 Note that the image element annotated with `crop-image` is replaced by a canvas which inherits the original element's dimensions.
 
-A makeshift demo is available, via RawGit, [here](https://cdn.rawgit.com/czarpino/angular-image-cropper/010dde65798d008beffadef4f8c899e8058e7806/demo.html) or you can use:
+A makeshift demo is available, via RawGit, [here](https://cdn.rawgit.com/czarpino/angular-image-cropper/5ba830bb4e94d4c014d1edf681d140fb1ea29b57/demo.html) or you can use:
 
     https://cdn.rawgit.com/czarpino/angular-image-cropper/<<last-commit-sha>>/demo.html
 
