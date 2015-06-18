@@ -136,6 +136,10 @@
          * @returns {Cropper}
          */
         function setImageSrc(imageSrc) {
+            if (!imageSrc) {
+                return self;
+            }
+            
             image = new Image();
             image.src = imageSrc;
             image.onload = function () {
