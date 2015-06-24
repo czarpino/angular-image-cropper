@@ -126,7 +126,7 @@
          * @returns {string}
          */
         function getCroppedImage() {
-            return canvas.toDataURL();
+            return image && image.src ? canvas.toDataURL() : null;
         }
         
         /**
