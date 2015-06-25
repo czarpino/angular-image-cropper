@@ -126,7 +126,7 @@
          * @returns {string}
          */
         function getCroppedImage() {
-            return image && image.src ? canvas.toDataURL() : null;
+            return canvas.toDataURL();
         }
         
         /**
@@ -141,6 +141,9 @@
             }
             
             image = new Image();
+            
+            // access cross-origin resource as anonymous
+            image.crossOrigin = 'Anonymous';
             image.src = imageSrc;
             image.onload = function () {
                 reset();
